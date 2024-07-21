@@ -1,0 +1,87 @@
+import java.awt.*;
+
+public class Robot {
+    public static final int DEFAULT_HEAD_SIZE = 50;
+    private CustomRectangle head;
+    private CustomRectangle body;
+    private CustomRectangle leftFoot;
+    private CustomRectangle rightFoot;
+    private int headSize;
+    private boolean enemy;
+    private int currentDirection;
+    private boolean alive;
+
+    public Robot (int x, int y, int headSize) {
+        this.headSize = headSize;
+        this.head = new CustomRectangle(x, y, this.headSize, this.headSize);
+        this.body = new CustomRectangle(x - this.headSize / 2,
+                y + this.headSize,
+                this.headSize * 2,
+                this.headSize * 2);
+        this.enemy = true;
+        this.alive = true;
+    }
+
+    public Robot (int x, int y) {
+        this(x, y, DEFAULT_HEAD_SIZE);
+        this.enemy = false;
+    }
+
+    public void paint (Graphics graphics) {
+        graphics.setColor(this.enemy ? Color.BLUE : Color.CYAN);
+        this.head.paint(graphics);
+        this.body.paint(graphics);
+    }
+
+    public void moveRight () {
+        this.head.moveRight();
+        this.body.moveRight();
+    }
+
+    public void moveLeft () {
+        this.head.moveLeft();
+        this.body.moveLeft();
+    }
+
+    public void moveUp () {
+        this.head.moveUp();
+        this.body.moveUp();
+    }
+
+    public void moveDown () {
+        this.head.moveDown();
+        this.body.moveDown();
+    }
+
+    public int getCurrentDirection() {
+        return currentDirection;
+    }
+
+    public void setCurrentDirection(int currentDirection) {
+        this.currentDirection = currentDirection;
+    }
+
+    public Rectangle getRobotAsRectangle () {
+        Rectangle rectangle = new Rectangle(
+                this.body.getX(),
+                this.body.getY(),
+                this.body.getWidth(),
+                this.body.getHeight()
+        );
+        return rectangle;
+    }
+
+    public void kill () {
+        this.alive = false;
+    }
+
+    public void fallApart () {
+        this.head.moveDown();
+        this.body.moveUp();
+    }
+
+    public boolean isAlive () {
+        return this.alive;
+    }
+
+}
