@@ -1,0 +1,96 @@
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class ScenePanel extends JPanel {
+    public static final int MAX_ENEMIES = 3;
+    private Robot robot;
+    private ArrayList<Robot> enemies;
+
+    public ScenePanel (int x, int y, int width, int height) {
+        this.setBounds(x, y, width, height);
+        this.robot = new Robot(300, 300);
+        this.setFocusable(true);
+        this.requestFocus();
+        this.addKeyListener(new KeyboardListener(this, this.robot));
+        this.mainGameLoop();
+        Random random = new Random();
+        this.enemies = new ArrayList<>();
+        for (int i = 0; i < MAX_ENEMIES; i++) {
+            this.enemies.add(new Robot(
+                    random.nextInt(0, width),
+                    random.nextInt(0, height),
+                    20));
+        }
+    }
+
+    public void mainGameLoop () {
+        new Thread(() ->{
+            Random random = new Random();
+            int RIGHT = 1;
+            int LEFT = 2;
+            int UP = 3;
+            int DOWN = 4;
+            int count = 0;
+            while (true) {
+                try {
+                    if (count % 100 == 0) {
+                        for (Robot enemy : this.enemies) {
+                            enemy.setCurrentDirection(0);
+                        }
+                    }
+                    for (Robot enemy : this.enemies) {
+                        if (enemy.getCurrentDirection() == 0) {
+                            enemy.setCurrentDirection(random.nextInt(1, 5));
+                        }
+                        int direction = enemy.getCurrentDirection();
+                        if (direction == RIGHT) {
+                            enemy.moveRight();
+                        } else if (direction == LEFT) {
+                            enemy.moveLeft();
+                        } else if (direction == UP) {
+                            enemy.moveUp();
+                        } else {
+                            enemy.moveDown();
+                        }
+                        if (this.collision(this.robot.getRobotAsRectangle(), enemy.getRobotAsRectangle())) {
+                            this.robot.kill();
+                        }
+                    }
+                    if (!this.robot.isAlive()) {
+                        this.robot.fallApart();
+                    }
+
+                    sleep(10);
+                    repaint();
+                } catch (Exception e) {
+
+                }
+                count++;
+            }
+        }).start();
+    }
+
+    public void paintComponent (Graphics graphics) {
+        super.paintComponent(graphics);
+        this.robot.paint(graphics);
+        for (Robot enemy : this.enemies) {
+            enemy.paint(graphics);
+        }
+    }
+
+    public void sleep (int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean collision (Rectangle robot, Rectangle enemy) {
+        return robot.intersects(enemy);
+    }
+
+
+}
